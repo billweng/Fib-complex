@@ -1,0 +1,37 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t bweng/Fib-complex-test -f ./client/Dockerfile.dev ./client
+ 
+script:
+  - docker run -e CI=true bweng/Fib-complex-test npm run test
+#  - docker run bweng/docker-react npm run test -- --coverage
+ 
+ after_success:
+  - docker build -t bweng/Fib-client ./client/
+  - docker build -t bweng/Fib-nginx ./ngnix
+  - docker build -t bweng/Fib-server ./server
+  - docker build -t bweng/Fib-worker ./worker
+  # log in to the docker cli
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # take those images and push them to docker hub
+  - docker push bweng/Fib-client
+  - docker push bweng/Fib-ngnix
+  - docker push bweng/Fib-server
+  - docker push bweng/Fib-worker
+
+deploy:
+  provider: elasticbeanstalk
+  edge: true
+  region: "us-east-2"
+  app: "docker-react"
+  env: "DockerReact-env"
+  bucket_name: "elasticbeanstalk-us-east-2-390760742842"
+  bucket_path: "docker-react"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: 
+    secure: "$AWS_SECRET_KEY"
