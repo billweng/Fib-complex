@@ -1,0 +1,39 @@
+{
+	"AWSEBDockerrunVersion": 2,
+	"containerDefinitions": [
+       {
+       	  "name": "client",
+       	  "image": "bweng/Fib-client",
+       	  "hostname": "client",
+       	  "essential": false,
+       	  "memory": 128M
+       },
+       {
+       	  "name": "server",
+       	  "image": "bweng/Fib-server",
+       	  "hostname": "api",
+       	  "essential": false,
+       	  "memory": 128M
+       },
+       {
+       	  "name": "worker",
+       	  "image": "bweng/Fib-worker",
+       	  "hostname": "worker",
+       	  "essential": false,
+       	  "memory": 128M
+       },
+       {
+       	  "name": "nginx",
+       	  "image": "bweng/Fib-nginx",
+       	  "essential": true,
+       	  "memory": 128M,
+       	  "potyMappings": [
+            {
+            	"hostPort": 3050,
+            	"containerPort": 80
+            }
+       	  ],
+       	  "links": ["client", "server"]
+       }
+	]
+}
